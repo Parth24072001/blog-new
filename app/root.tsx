@@ -20,6 +20,7 @@ import { json, LoaderArgs } from "@remix-run/node";
 import { fetchDataWithSearch } from "./db-helpers.server";
 import Navbar from "./components/shared/Navbar";
 import SocialModal from "./components/modals/ScocialModal";
+import { useGoogleAnalytics } from "./rootFiles/useGoogleAnalytics";
 
 export function links() {
   return [{ rel: "stylesheet", href: stylesheet }];
@@ -35,9 +36,29 @@ export function meta() {
   };
 }
 
+// export async function LoaderDataFile() {
+//   try {
+//     const ENV = {
+//       APIENDPOINT: process.env.APIENDPOINT || "default endpoint",
+//       GOOGLEKEY: process.env.GOOGLEKEY || "default-key",
+//       DEVELOPMENT: process.env.NODE_ENV || "development",
+//     };
+
+//     return json({
+//       ENV,
+//     });
+//   } catch (error) {
+//     console.error("LoaderDataFile error:");
+//     throw new Response("Failed to load data", { status: 500 });
+//   }
+// }
+
 export default function App() {
+  // let { ENV } = useLoaderData();
+  let GOOGLEKEY = process.env.GOOGLEKEY || "";
+  let DEVELOPMENT = process.env.DEVELOPMENT || "";
   useTheme();
-  // useGoogleAnalytics(ENV.GOOGLEKEY, ENV.DEVELOPMENT);
+  useGoogleAnalytics(GOOGLEKEY, DEVELOPMENT);
   return (
     <Document>
       <Layout>
