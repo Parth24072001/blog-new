@@ -17,7 +17,6 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function Blogs() {
   let { banners, searchedBanners } = useLoaderData();
-  console.log(banners);
 
   return (
     <div>

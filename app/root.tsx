@@ -79,8 +79,37 @@ function Layout({ children }: { children: React.ReactNode }) {
               <li>
                 <Link to="/blogs">Blogs</Link>
               </li>
+
               <li>
-                <Link to="/blogs/add"> * Add</Link>
+                <Link to="/banner">banner</Link>
+              </li>
+
+              <li>
+                <Link to="/channels">channels</Link>
+              </li>
+
+              <li>
+                <Link to="/courses">courses</Link>
+              </li>
+
+              <li>
+                <Link to="/images">images</Link>
+              </li>
+
+              <li>
+                <Link to="/menus">menus</Link>
+              </li>
+
+              <li>
+                <Link to="/paids">paids</Link>
+              </li>
+
+              <li>
+                <Link to="/videos">videos</Link>
+              </li>
+
+              <li>
+                <Link to="/webstories">webstories</Link>
               </li>
             </ul>
           </aside>

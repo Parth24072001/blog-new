@@ -1,14 +1,19 @@
 import { useLoaderData } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import type { LoaderArgs } from "@remix-run/node";
-import { mongodb, ObjectId } from "~/utils/db.server";
-
+import { fetchDocumentById } from "~/db-helpers.server";
 export async function loader({ params }: LoaderArgs) {
   const blogId = params.blogId;
 
-  let db = await mongodb.db("blogging");
-  let collection = await db.collection("blogs");
-  let blog = await collection.findOne({ _id: new ObjectId(blogId) });
+  if (!blogId) {
+    throw new Error("Blog ID is required");
+  }
+
+  const blog = await fetchDocumentById("channels", blogId);
+
+  if (!blog) {
+    throw new Response("Blog not found", { status: 404 });
+  }
 
   return json(blog);
 }
