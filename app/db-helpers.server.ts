@@ -98,47 +98,54 @@ export async function upsertDocumentById(
   return result.upsertedId || id; // Returns the ID of the upserted document or the original ID
 }
 
-export async function incrementLikeCount(collectionName: string, id: string) {
-  const db = await mongodb.db("blogging");
-  const collection = await db.collection(collectionName);
-  
-  const result = await collection.updateOne(
-    { _id: new ObjectId(id) },
-    { $inc: { likeCount: 1 } } // Increment the likeCount field
-  );
+export async function incrementViewCount(collectionName: string, id: string): Promise<boolean> {
+  try {
+    const db = await mongodb.db("blogging");
+    const collection = await db.collection(collectionName);
 
-  return result.modifiedCount > 0; // Returns true if the document was updated
-}
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $inc: { viewCount: 1 } } // Increment viewCount by 1
+    );
 
-export async function toggleLike(
-  collectionName: string,
-  id: string,
-  clientId: string
-) {
-  const db = await mongodb.db("blogging");
-  const collection = await db.collection(collectionName);
-
-  const blog = await collection.findOne({ _id: new ObjectId(id) });
-
-  if (!blog) {
+    return result.modifiedCount > 0; // Returns true if the document was updated
+  } catch (error) {
+    console.error("Error incrementing view count:", error);
     return false;
   }
+}
 
-  const hasLiked = blog.likedBy.includes(clientId);
+export async function toggleLike(collectionName: string, id: string, clientId: string): Promise<boolean> {
+  try {
+    const db = await mongodb.db("blogging");
+    const collection = await db.collection(collectionName);
 
-  const updateResult = await collection.updateOne(
-    { _id: new ObjectId(id) },
-    {
-      $set: {
-        likedBy: hasLiked
-          ? blog.likedBy.filter((id:any) => id !== clientId) // Remove like
-          : [...blog.likedBy, clientId] // Add like
-      },
-      $inc: {
-        likeCount: hasLiked ? -1 : 1 // Decrement if removing like, increment if adding
-      }
+    const blog = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!blog) {
+      console.error("Blog post not found");
+      return false;
     }
-  );
 
-  return updateResult.modifiedCount > 0;
+    const hasLiked = blog.likedBy.includes(clientId);
+
+    const updateResult = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          likedBy: hasLiked
+            ? blog.likedBy.filter((id:any) => id !== clientId) // Remove like
+            : [...blog.likedBy, clientId] // Add like
+        },
+        $inc: {
+          likeCount: hasLiked ? -1 : 1 // Decrement if removing like, increment if adding
+        }
+      }
+    );
+
+    return updateResult.modifiedCount > 0;
+  } catch (error) {
+    console.error("Error toggling like:", error);
+    return false;
+  }
 }

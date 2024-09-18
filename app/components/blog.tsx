@@ -1,73 +1,68 @@
 import { useState } from "react";
 import { Link } from "@remix-run/react";
-import { ActionArgs, json } from "@remix-run/node";
-import {
-  fetchDocumentById,
-  incrementLikeCount,
-  toggleLike,
-} from "~/db-helpers.server";
+import { ActionArgs, redirect } from "@remix-run/node";
+import { incrementViewCount, toggleLike } from "~/db-helpers.server";
 
 export async function action({ request }: ActionArgs) {
-  const formData = new URLSearchParams(await request.text());
-  const id = formData.get("id")!;
-  const clientId = "12345"!;
-  const action = formData.get("action")!; // 'like' or 'view'
+  const formData = await request.formData();
+  const blogId = formData.get("blogId") as string;
+  const clientId = formData.get("clientId") as string;
+  const actionType = formData.get("actionType") as string; // 'view' or 'like'
 
-  try {
-    if (action === "view") {
-      const success = await incrementLikeCount("blogs", id);
-      if (!success) throw new Error("Failed to increment view count");
-    } else if (action === "like") {
-      const success = await toggleLike("blogs", id, clientId);
-      if (!success) throw new Error("Failed to toggle like");
-    } else {
-      return json({ message: "Invalid action" }, { status: 400 });
+  if (actionType === "view") {
+    const success = await incrementViewCount("blogs", blogId);
+    if (!success) {
+      return new Response("Error incrementing view count", { status: 500 });
     }
-
-    // Fetch the updated document
-    const updatedBlog = await fetchDocumentById("blogs", id);
-    if (updatedBlog) {
-      return json(updatedBlog);
-    } else {
-      return json({ message: "Blog not found" }, { status: 404 });
+  } else if (actionType === "like") {
+    const success = await toggleLike("blogs", blogId, clientId);
+    if (!success) {
+      return new Response("Error toggling like", { status: 500 });
     }
-  } catch (error: any) {
-    console.error("Error handling action:", error);
-    return json({ message: error.message }, { status: 500 });
+  } else {
+    return new Response("Invalid action type", { status: 400 });
   }
+
+  // Optionally redirect to the blog detail page or return a success response
+  return redirect(`/blogs/${blogId}`);
 }
 
 const Blog = (props: any) => {
-  const [liked, setLiked] = useState<boolean>(false);
+  const [liked, setLiked] = useState<boolean>(props.likedBy.includes("123"));
 
-  const handleLikeToggle = async () => {
-    const formData = new URLSearchParams();
-    formData.append("id", props._id);
-    formData.append("clientId", "1233");
-    // formData.append("action", liked ? "view" : "like");
-    formData.append("action", !liked ? "view" : "like");
-
+  const handleAction = async (actionType: "view" | "like") => {
     try {
-      const response = await fetch(`/blogs/${props._id}/update`, {
+      const response = await fetch(`/blogs/${props._id}/action`, {
         method: "POST",
-        body: formData,
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          blogId: props._id,
+          clientId: "123",
+          actionType: actionType,
+        }),
       });
 
       if (response.ok) {
-        const updatedBlog = await response.json();
-        setLiked(updatedBlog.likedBy.includes(props.currentClientId));
+        if (actionType === "like") {
+          const result = await response.json();
+          setLiked(result.likedBy.includes("123"));
+        }
       } else {
-        console.error("Error handling like toggle:", await response.json());
+        console.error("Error handling action:", await response.json());
       }
     } catch (error) {
-      console.error("Error handling like toggle:", error);
+      console.error("Error handling action:", error);
     }
   };
 
   return (
     <div key={props._id}>
       <Link to={`/blogs/${props._id}`}>{props.title}</Link>
-      <button onClick={handleLikeToggle}>{liked ? "Unlike" : "Like"}</button>
+      <button onClick={() => handleAction("view")}>
+        {liked ? "Unlike" : "Like"}
+      </button>
     </div>
   );
 };
