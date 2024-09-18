@@ -3,10 +3,16 @@ import UpperNavbar from "./UpperNavabar";
 
 import BottomNavbar from "./BottomNavbar";
 
-export default function Navbar({ bannerData }: { bannerData: any }) {
+export default function Navbar({
+  bannerData,
+  menus,
+}: {
+  bannerData: any;
+  menus: any;
+}) {
   return (
     <>
-      <UpperNavbar />
+      <UpperNavbar menus={menus} />
 
       <BottomNavbar bannerData={bannerData} />
     </>

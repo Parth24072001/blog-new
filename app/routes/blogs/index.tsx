@@ -16,7 +16,6 @@ export async function loader({ request }: LoaderArgs) {
 
 export default function Blogs() {
   let { blogs, searchedBlogs } = useLoaderData();
-  console.log(blogs);
   return (
     <div>
       <h1>Blogs</h1>

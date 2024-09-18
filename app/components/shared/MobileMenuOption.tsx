@@ -1,6 +1,5 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
-import { useLoaderData } from "@remix-run/react";
 
 type MenuItem = {
   _id: string;
@@ -22,14 +21,12 @@ type MenuItem = {
   __v: number;
 };
 
-const MobileMenuOption = () => {
-  const menuData: any = useLoaderData();
-
+const MobileMenuOption = ({ menus }: any) => {
   return (
     <>
       <ul className="w-full px-4   common_container">
         <li className=" grid grid-cols-3 gap-6 sm:grid-cols-3 maxXsm:grid-cols-1 maxXs:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 py-2">
-          {menuData?.menuData?.map((item: MenuItem) => (
+          {menus?.map((item: MenuItem) => (
             <li className="" key={item?._id}>
               <p className=" text-primary">{item?.title}</p>
               {item?.submenu && item.submenu.length > 0 && (

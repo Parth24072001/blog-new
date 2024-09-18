@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
 import { useState } from "react";
 
 import { Bars3Icon } from "@heroicons/react/20/solid";
@@ -8,7 +9,7 @@ import DarkModeSwitch from "./DarkModeSwitch";
 
 import clsx from "clsx";
 
-export default function UpperNavbar() {
+export default function UpperNavbar({ menus }: any) {
   const { width } = useWindowSize();
 
   const [navbarOpen, setNavbarOpen] = useState(false);
@@ -28,6 +29,7 @@ export default function UpperNavbar() {
   // useEffect(() => {
   //   setCurrentDateTime(formatDateTime(new Date()));
   // }, []);
+  console.log(navbarOpen);
 
   return (
     <nav
@@ -72,7 +74,7 @@ export default function UpperNavbar() {
                   viewBox="0 0 24 24"
                   strokeWidth={1.5}
                   stroke="currentColor"
-                  className="size-6"
+                  className="size-6 h-6 w-6"
                 >
                   <path
                     strokeLinecap="round"
@@ -88,7 +90,11 @@ export default function UpperNavbar() {
           <div className=" h-[0.0625rem] w-full bg-primary "></div>
         )}
 
-        {width >= 1023 ? <MenuOption /> : navbarOpen && <MobileMenuOption />}
+        {width >= 1023 ? (
+          <MenuOption menus={menus} />
+        ) : (
+          navbarOpen && <MobileMenuOption menus={menus} />
+        )}
       </div>
     </nav>
   );

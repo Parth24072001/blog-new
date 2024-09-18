@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { useLoaderData } from "@remix-run/react";
 import DarkModeSwitch from "./DarkModeSwitch";
 
 type MenuItem = {
@@ -22,12 +21,11 @@ type MenuItem = {
   __v: number;
 };
 
-const MenuOption = () => {
-  const { menuData }: any = useLoaderData();
+const MenuOption = ({ menus }: any) => {
   // console.log(menuData);
 
   // const MENUUSE = MODE === "DEVELOPMENT" ? menuData?.menuData : dummyData;
-  const visibleMenu: any = menuData?.slice(0, 5);
+  const visibleMenu: any = menus?.slice(0, 5);
   return (
     <>
       <div
@@ -65,7 +63,7 @@ const MenuOption = () => {
             </li>
           ))}
 
-          {menuData?.length > 5 && (
+          {menus?.length > 5 && (
             <li className=" subnav ">
               <div>
                 <div className="nav-item ">
@@ -81,7 +79,7 @@ const MenuOption = () => {
               <div className="caret"></div>
 
               <div className="subnav-content subnavlast ">
-                {menuData?.slice(5).map((item: any) => (
+                {menus?.slice(5).map((item: any) => (
                   <li className="" key={item?._id}>
                     <p className=" text-primary">{item?.title}</p>
                     {item?.submenu && item.submenu.length > 0 && (

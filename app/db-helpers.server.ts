@@ -14,7 +14,7 @@ export async function fetchDataWithSearch(
   if (domainName) {
     const domainCollection = await db.collection("domains");
     const domain = await domainCollection.findOne({ domainName: domainName });
-    console.log("Domain Lookup Result:", domain); // Debugging
+
     if (domain) {
       domainId = domain._id.toString(); // Convert _id to string if needed
     } else {
@@ -35,12 +35,13 @@ export async function fetchDataWithSearch(
     ...(domainId ? { domainName: { $elemMatch: { $eq: domainId } } } : {})
   };
 
-  console.log("Constructed Filter:", filter); // Debugging
+
 
   const collection = await db.collection(collectionName);
   const results = await collection.find(filter).limit(limit).toArray();
 
-  console.log("Query Results:", results); // Debugging
+
+
   return results;
 }
 

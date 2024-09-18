@@ -1,33 +1,38 @@
-import { Outlet, LiveReload, Links, Link, Meta } from "@remix-run/react";
+/* eslint-disable @typescript-eslint/consistent-type-imports */
+import {
+  Outlet,
+  LiveReload,
+  Links,
+  Link,
+  Meta,
+  ScrollRestoration,
+  Scripts,
+  useLoaderData,
+} from "@remix-run/react";
 import React from "react";
 import stylesheet from "~/tailwind.css";
 import NotFound from "./components/moduls/NotFound";
 
-import { getPageTitle } from "./components/shared/Helper";
 import { useTheme } from "./rootFiles/useTheme";
+import Loading from "./components/shared/Loading";
+import Footer from "./components/shared/Footer";
+import { json, LoaderArgs } from "@remix-run/node";
+import { fetchDataWithSearch } from "./db-helpers.server";
+import Navbar from "./components/shared/Navbar";
+import SocialModal from "./components/modals/ScocialModal";
 
 export function links() {
   return [{ rel: "stylesheet", href: stylesheet }];
 }
 
 export function meta() {
-  return [
-    {
-      title: getPageTitle("Retro Community"),
-    },
-    {
-      content: getPageTitle("Blogs"),
-      name: "og:title",
-    },
-  ];
-}
+  const description = "A template for Remix applications using MongoDB";
+  const keywords = "remix, react, mongodb, tailwindcss";
 
-export function ErrorBoundary() {
-  return (
-    <div>
-      <NotFound />
-    </div>
-  );
+  return {
+    description,
+    keywords,
+  };
 }
 
 export default function App() {
@@ -48,32 +53,31 @@ type iDocType = {
 };
 
 export function ErrorBoundry({ error }: any) {
-  console.log(error);
   return (
     <Document>
       <Layout>
         <h1>Sorry An Error Occured</h1>
         <pre>{error}</pre>
+        <NotFound />
       </Layout>
     </Document>
   );
 }
+export async function loader({ request }: LoaderArgs) {
+  const url = new URL(request.url);
+  const searchTerm = url.searchParams.get("search");
+
+  const banners = await fetchDataWithSearch("banners", searchTerm);
+  const menus = (await fetchDataWithSearch("menus", searchTerm)) || [];
+  const channels = (await fetchDataWithSearch("channels", searchTerm)) || [];
+
+  return json({ banners, channels, menus });
+}
 
 function Document({ children, title }: iDocType) {
-  return (
-    // <html lang="en">
-    //   <head>
-    //     <Meta />
-    //     <Links />
-    //     <title>{title ? title : "MongoDB Remix Template"}</title>
-    //   </head>
-    //   <body>
-    //     {children}
-    //     {process.env.NODE_ENV === "development" && <LiveReload />}
-    //   </body>
-    //   <Scripts />
-    // </html>
+  let { banners, menus, channels } = useLoaderData();
 
+  return (
     <html lang="en">
       <head>
         <meta
@@ -82,7 +86,6 @@ function Document({ children, title }: iDocType) {
         ></meta>
         <Meta />
         <Links />
-        {/* Google Tag Manager */}
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KJJJGBNP');`,
@@ -92,7 +95,7 @@ function Document({ children, title }: iDocType) {
           async
           src="https://www.googletagmanager.com/gtm.js?id=GTM-KJJJGBNP"
         ></script>
-        {/* Google Analytics */}
+
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-B622FHY91H"
@@ -112,7 +115,7 @@ function Document({ children, title }: iDocType) {
         ></meta>
         <Meta />
         <Links />
-        {/* Google Tag Manager */}
+
         <script
           dangerouslySetInnerHTML={{
             __html: `(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-KJJJGBNP');`,
@@ -122,7 +125,7 @@ function Document({ children, title }: iDocType) {
           async
           src="https://www.googletagmanager.com/gtm.js?id=GTM-KJJJGBNP"
         ></script>
-        {/* Google Analytics */}
+
         <script
           async
           src="https://www.googletagmanager.com/gtag/js?id=G-B622FHY91H"
@@ -146,11 +149,10 @@ function Document({ children, title }: iDocType) {
           title="Google Tag Manager"
         ></iframe>
 
-        {/* <div className="bg-background custom-container">
+        <div className="bg-background custom-container">
           <div className=" bg-primary-300 ">
-            <Navbar bannerData={bannerData} />
-            {navigation.state === "loading" ||
-            navigation.state === "submitting" ? (
+            <Navbar bannerData={banners} menus={menus} />
+            {false ? (
               <div className="fixed bottom-0 right-0 flex items-center space-x-2 rounded bg-white p-4 max-md:inset-x-0 max-md:justify-center">
                 <Loading />
                 <span className="text-lg">Loading...</span>
@@ -161,14 +163,14 @@ function Document({ children, title }: iDocType) {
           </div>
         </div>
 
-        <SocialModal channelData={channelData[0]} />
+        <SocialModal channelData={channels[0]} />
         <ScrollRestoration />
         <Scripts />
-        {process.env.NODE_ENV === "development" && <LiveReload />} */}
-        <body>
+        {process.env.NODE_ENV === "development" && <LiveReload />}
+        {/* <body>
           {children}
           {process.env.NODE_ENV === "development" && <LiveReload />}
-        </body>
+        </body> */}
       </body>
     </html>
   );

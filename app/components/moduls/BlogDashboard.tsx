@@ -5,8 +5,6 @@ import Section1 from "./Section1";
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 const BlogDashboard = ({ blogData }: { blogData: any }) => {
-  console.log(blogData?.blogs);
-
   return (
     <>
       <Section1 />
