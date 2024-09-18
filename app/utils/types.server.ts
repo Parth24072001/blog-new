@@ -1,6 +1,6 @@
 import type { WithId, Document } from "mongodb";
 
-export interface Movie extends WithId<Document> {
+export interface Blog extends WithId<Document> {
   plot: string,
   genres: string[],
   runtime: number,

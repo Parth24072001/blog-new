@@ -5,27 +5,25 @@ import { mongodb } from "~/utils/db.server";
 
 export async function action({ request }: ActionArgs) {
   const formData = await request.formData();
-  const movie = {
+  const blog = {
     title: formData.get("title"),
-    year: formData.get("year")
-  }
-  const db = await mongodb.db("sample_mflix");
-  const collection = await db.collection("movies");
-  const result = await collection.insertOne(movie);
-  return redirect(`/movies/${result.insertedId}`);
+    year: formData.get("year"),
+  };
+  const db = await mongodb.db("blogging");
+  const collection = await db.collection("blogs");
+  const result = await collection.insertOne(blog);
+  return redirect(`/blogs/${result.insertedId}`);
 }
 
 export default function Index() {
   return (
     <div>
-      <h2>Add a movie</h2>
-      <Form method="POST" action="/movies/add">
+      <h2>Add a blog</h2>
+      <Form method="POST" action="/blogs/add">
         <input type="text" name="title" placeholder="Title" />
         <input type="text" name="year" placeholder="Year" />
-        <button type="submit">
-          Search
-        </button>
+        <button type="submit">Search</button>
       </Form>
     </div>
-  )
+  );
 }

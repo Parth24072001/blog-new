@@ -4,21 +4,21 @@ import type { LoaderArgs } from "@remix-run/node";
 import { mongodb, ObjectId } from "~/utils/db.server";
 
 export async function loader({ params }: LoaderArgs) {
-  const movieId = params.movieId;
+  const blogId = params.blogId;
 
-  let db = await mongodb.db("sample_mflix");
-  let collection = await db.collection("movies");
-  let movie = await collection.findOne({_id: new ObjectId(movieId)});
+  let db = await mongodb.db("blogging");
+  let collection = await db.collection("blogs");
+  let blog = await collection.findOne({ _id: new ObjectId(blogId) });
 
-  return json(movie);
+  return json(blog);
 }
 
 export default function Index() {
-  const movie = useLoaderData();
+  const blog = useLoaderData();
   return (
     <div>
-      <h1>Movie: {movie.title}</h1>
-      <p>{movie.plot}</p>
+      <h1>Blog: {blog.title}</h1>
+      <p>{blog.plot}</p>
     </div>
-  )
+  );
 }
