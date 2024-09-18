@@ -1,38 +1,27 @@
 import { useLoaderData, Form } from "@remix-run/react";
 import { json } from "@remix-run/node";
 import type { LoaderArgs } from "@remix-run/node";
-import { mongodb } from "~/utils/db.server";
 import type { Blog } from "~/utils/types.server";
 import BlogComponent from "~/components/blog";
+import { fetchDataWithSearch } from "~/db-helpers.server";
 
 export async function loader({ request }: LoaderArgs) {
   const url = new URL(request.url);
+  const searchTerm = url.searchParams.get("search");
 
-  let db = await mongodb.db("blogging");
-  let collection = await db.collection("blogs");
-  let blogs = await collection.find({}).limit(10).toArray();
+  const blogs = (await fetchDataWithSearch("blogs", searchTerm)) || [];
 
-  let searchedBlogs: Blog[] = [];
-  let searchTerm = url.searchParams.get("search");
-  if (searchTerm) {
-    let searchRegex = new RegExp(searchTerm, "i");
-    searchedBlogs = (await collection
-      .find({ title: { $regex: searchRegex } })
-      .limit(10)
-      .toArray()) as Blog[];
-  }
-
-  return json({ blogs, searchedBlogs });
+  return json({ blogs });
 }
 
 export default function Blogs() {
   let { blogs, searchedBlogs } = useLoaderData();
+  console.log(blogs);
   return (
     <div>
       <h1>Blogs</h1>
-      <h2>Fetch ten blogs</h2>
-      <p className="mb-2">Here are some blogs from `blogging.blogs`</p>
-      {blogs.map((blog: Blog) => {
+
+      {blogs?.map((blog: Blog) => {
         return <BlogComponent key={blog._id} {...blog} />;
       })}
 
@@ -42,8 +31,8 @@ export default function Blogs() {
         <input type="text" name="search" placeholder="Partial title" />
         <button type="submit">Search</button>
       </Form>
-      {!!searchedBlogs.length &&
-        searchedBlogs.map((blog: Blog) => {
+      {!!searchedBlogs?.length &&
+        searchedBlogs?.map((blog: Blog) => {
           return <BlogComponent key={blog._id} {...blog} />;
         })}
     </div>

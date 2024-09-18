@@ -30,8 +30,7 @@ export default function Blogs() {
   return (
     <div>
       <h1>Blogs</h1>
-      <h2>Fetch ten blogs</h2>
-      <p className="mb-2">Here are some blogs from `blogging.blogs`</p>
+
       {blogs.map((blog: Blog) => {
         return <BlogComponent key={blog._id} {...blog} />;
       })}
