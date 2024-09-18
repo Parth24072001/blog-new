@@ -2,5 +2,10 @@ node_modules
 
 /.cache
 /build
+.env
+node_modules
+
+/.cache
+/build
 /public/build
 .env

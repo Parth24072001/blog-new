@@ -21,6 +21,7 @@ import { fetchDataWithSearch } from "./db-helpers.server";
 import Navbar from "./components/shared/Navbar";
 import SocialModal from "./components/modals/ScocialModal";
 import { useGoogleAnalytics } from "./rootFiles/useGoogleAnalytics";
+import { env } from "process";
 
 export function links() {
   return [{ rel: "stylesheet", href: stylesheet }];
@@ -36,29 +37,11 @@ export function meta() {
   };
 }
 
-// export async function LoaderDataFile() {
-//   try {
-//     const ENV = {
-//       APIENDPOINT: process.env.APIENDPOINT || "default endpoint",
-//       GOOGLEKEY: process.env.GOOGLEKEY || "default-key",
-//       DEVELOPMENT: process.env.NODE_ENV || "development",
-//     };
-
-//     return json({
-//       ENV,
-//     });
-//   } catch (error) {
-//     console.error("LoaderDataFile error:");
-//     throw new Response("Failed to load data", { status: 500 });
-//   }
-// }
-
 export default function App() {
-  // let { ENV } = useLoaderData();
-  let GOOGLEKEY = process.env.GOOGLEKEY || "";
-  let DEVELOPMENT = process.env.DEVELOPMENT || "";
+  const env = useLoaderData();
+
   useTheme();
-  useGoogleAnalytics(GOOGLEKEY, DEVELOPMENT);
+  useGoogleAnalytics(env.GOOGLEKEY, env.DEVELOPMENT);
   return (
     <Document>
       <Layout>
@@ -91,8 +74,13 @@ export async function loader({ request }: LoaderArgs) {
   const banners = await fetchDataWithSearch("banners", searchTerm);
   const menus = (await fetchDataWithSearch("menus", searchTerm)) || [];
   const channels = (await fetchDataWithSearch("channels", searchTerm)) || [];
-
-  return json({ banners, channels, menus });
+  return json({
+    GOOGLEKEY: process.env.GOOGLEKEY || "",
+    DEVELOPMENT: process.env.DEVELOPMENT || "",
+    banners,
+    channels,
+    menus,
+  });
 }
 
 function Document({ children, title }: iDocType) {
@@ -169,6 +157,11 @@ function Document({ children, title }: iDocType) {
           style={{ display: "none", visibility: "hidden" }}
           title="Google Tag Manager"
         ></iframe>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `window.ENV = ${JSON.stringify(env)}`,
+          }}
+        />
 
         <div className="bg-background custom-container">
           <div className=" bg-primary-300 ">
