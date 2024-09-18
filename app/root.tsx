@@ -9,8 +9,6 @@ import {
 import React from "react";
 import stylesheet from "~/tailwind.css";
 
-import logo from "~/assets/logo.png";
-
 export function links() {
   return [{ rel: "stylesheet", href: stylesheet }];
 }
